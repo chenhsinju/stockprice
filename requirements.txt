@@ -2,3 +2,4 @@ Flask
 gunicorn
 BeautifulSoup4
 requests
+PyMySQL
