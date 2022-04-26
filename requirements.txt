@@ -2,5 +2,4 @@ beautifulsoup4==4.11.1
 Flask
 gunicorn
 requests
-urllib3
 lxml
