@@ -21,5 +21,5 @@ class Stock():
         # print(type(price))
         self.price = price
 
-        with open('stock_price.csv', 'w') as stock_price_csv:
-            stock_price_csv.write(price)
+        # with open('stock_price.csv', 'w') as stock_price_csv:
+        #     stock_price_csv.write(price)

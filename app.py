@@ -46,7 +46,7 @@ def stock_detail_page(sid):
             stock = s
             # print(stock)
     # 爬取個股詳細資料
-    stock.get_data()
+    # stock.get_data()
 
     # 個股股價
     stock_price = []
