@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+{% block link %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- https://select2.org/getting-started/basic-usage -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
+{% block body %}
+<section>
+    <div class="container">
+        <h1>設定</h1>
+
+        <form action="/setting_save" id="myForm" method="post">
+            <div class="form-group">
+                <label for="mySelect2">選擇股票：</label>
+                <select name="mySelect2" id="mySelect2" class="js-example-basic-multiple form-control form-control-lg"
+                    multiple>
+                    {% for stock in stock_list_all %}
+                    <option value="{{ stock.code }}">{{ stock.code }} {{ stock.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">儲存</button>
+        </form>
+
+        <p>按住 Ctrl (Windows) 或 Command (Mac) 按鈕可選擇多個選項。</p>
+
+        <a href="/" class="btn btn-primary">回到首頁</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block script1 %}
+<script>
+    $(document).ready(function () {
+        $(".js-example-basic-multiple").select2();
+    });
+    $("#mySelect2").select2({
+        dropdownParent: $("#myForm")
+    });
+</script>
+{% endblock %}
+
+{% block script2 %}{% endblock %}

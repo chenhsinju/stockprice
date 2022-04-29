@@ -1,4 +1,6 @@
-{% extends "shared/layout.html" %}
+{% extends "shared/base.html" %}
+{% block link %}{% endblock %}
+
 {% block body %}
 <!-- 何時會用到include呢？ 當 譬如說 我這一頁 header是放在這個位置，而另一頁我想將header放在那個位置 這樣  -->
 {% include "shared/header.html" %}
@@ -6,19 +8,20 @@
     <!-- add div <div class="container"> by entering '.container' -->
     <div class="container">
         <div class="row">
-            {% for stock in stock_list %}
+            {% for stock in stock_list_customized %}
             <!-- md: 中型裝置, 12/4=3 grid -->
             <!-- https://getbootstrap.com/docs/4.6/layout/grid/ -->
             <div class="col-md-3 col-6">
                 <!-- bootstrap4快捷鍵: 'b4-card-default' -->
                 <div class="card">
-                    <img class="card-img-top" src="{{url_for('static', filename='/images/'+stock.id+'.jpg')}}" alt="">
-                    <!-- <img class="card-img-top" src="/static/images/{{ stock.id }}.jpg" alt=""> -->
+                    <img class="card-img-top" src="https://picsum.photos/400/300?random={{ stock.code }}" alt="">
+                    <!-- <img class="card-img-top" src="{{url_for('static', filename='/images/'+stock.code+'.jpg')}}" alt=""> -->
+                    <!-- <img class="card-img-top" src="/static/images/{{ stock.code }}.jpg" alt=""> -->
                     <div class="card-body">
-                        <h4 class="card-title">{{ stock.id }}</h4>
+                        <h4 class="card-title">{{ stock.code }}</h4>
                         <p class="card-text">{{ stock.name }}</p>
                         <!-- a.btn.btn-primary -->
-                        <a href="/stock/{{ stock.id }}" class="btn btn-primary">觀看詳情</a>
+                        <a href="/stock/{{ stock.code }}" class="btn btn-primary">觀看詳情</a>
                     </div>
                 </div>
             </div>
@@ -27,3 +30,6 @@
     </div>
 </section>
 {% endblock %}
+
+{% block script1 %}{% endblock %}
+{% block script2 %}{% endblock %}
