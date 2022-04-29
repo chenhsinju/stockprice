@@ -1,5 +1,4 @@
 from flask import Flask, render_template, url_for, redirect
-from flask import jsonify
 from flask import request
 import csv
 import requests
