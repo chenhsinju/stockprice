@@ -2,8 +2,12 @@
 {% block link %}{% endblock %}
 
 {% block body %}
-<!-- 何時會用到include呢？ 當 譬如說 我這一頁 header是放在這個位置，而另一頁我想將header放在那個位置 這樣  -->
-{% include "shared/header.html" %}
+<header class="jumbotron">
+    <div class="container">
+        <h1 class="display-4">個股資訊查詢網站</h1>
+        <p class="lead">點選以下卡片觀看詳情</p>
+    </div>
+</header>
 <section>
     <!-- add div <div class="container"> by entering '.container' -->
     <div class="container">

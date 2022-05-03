@@ -16,7 +16,11 @@
                 <select name="mySelect2" id="mySelect2" class="js-example-basic-multiple form-control form-control-lg"
                     multiple>
                     {% for stock in stock_list_all %}
+                    {% if stock.is_selected %}
+                    <option value="{{ stock.code }}" selected>{{ stock.code }} {{ stock.name }}</option>
+                    {% else %}
                     <option value="{{ stock.code }}">{{ stock.code }} {{ stock.name }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
             </div>
