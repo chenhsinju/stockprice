@@ -20,12 +20,9 @@ class Stock():
         # 找到你要的那個div 其下的span標籤, 並擷取標籤裡的文字
         price = soup.find('div', 'D(f) Ai(fe) Mb(4px)').span.text.strip()
         self.price = price
-<<<<<<< HEAD
-=======
 
     def set_is_selected_true(self):
         self.is_selected = True
 
     def set_is_selected_false(self):
         self.is_selected = False
->>>>>>> 4f29f72d2b0b7c0cba24f6d1f84d9700b462ebf2
