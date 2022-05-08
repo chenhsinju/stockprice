@@ -1,95 +1,138 @@
 from flask import Flask, render_template, url_for, redirect, request
 import csv
 import requests
+import yfinance as yf
 from stock import Stock
 
 
 app = Flask(__name__)
-
-
-# 上市個股日收盤價及月平均價 API url
-URL = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_AVG_ALL'
-# 透過requests模組取得url來源的回應
-res = requests.get(URL)
-# print(res)
-stock_day_avg_all_list = res.json()
-# print(type(stock_day_avg_all_list))
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 # 全部的 個股列表
 stock_list_all = []
+# 首頁要顯示的、客製化的 個股字典
+stock_dict_customized = {}
 
 
-for stock in stock_day_avg_all_list:
-    # 建立一個股物件
-    s = Stock(stock['Code'], stock['Name'],
-              stock['MonthlyAveragePrice'], False)
-    # 將個股物件新增到 全部的 個股列表 內
-    stock_list_all.append(s)
+# 打開stock_tw.csv
+with open('stock_tw.csv', newline='', encoding='utf-8') as stock_tw_csv:
+    # 把csv檔案格式轉換為list
+    stock_list_tw = list(csv.reader(stock_tw_csv))
+    # print(stock_list_tw)
+    # print(type(stock_list_tw)) # list
+    for stock_tw in stock_list_tw:
+        # 建立一個股物件
+        s_tw = Stock(stock_tw[0], stock_tw[1], True)
+        # 將個股物件新增到個股清單內
+        stock_list_all.append(s_tw)
+        # print(s_tw)
+
+
+# 打開stock_two.csv
+with open('stock_two.csv', newline='', encoding='utf-8') as stock_two_csv:
+    # 把csv檔案格式轉換為list
+    stock_list_two = list(csv.reader(stock_two_csv))
+    # print(stock_list_two)
+    # print(type(stock_list_two)) # list
+    for stock_two in stock_list_two:
+        # 建立一個股物件
+        s_two = Stock(stock_two[0], stock_two[1], False)
+        # 將個股物件新增到個股清單內
+        stock_list_all.append(s_two)
+        # print(s_two)
+
+
+def get_stock_customized():
+    # 打開stock_dict_customized.csv
+    with open('stock_dict_customized.csv', newline='', encoding='utf-8') as stock_customized_csv:
+        # 讀取 CSV 檔內容，將每一列轉成一個 dictionary
+        rows = csv.DictReader(stock_customized_csv)
+        # 以迴圈輸出指定欄位
+        for row in rows:
+            # 將個股新增到個股字典內
+            stock_dict_customized.update({row['Code']: row['Name']})
+            # print(row['Code'], row['Name'])
+
+
+get_stock_customized()
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html', error=error), 404
 
 
 @app.route('/')
 # 首頁路由
 def index_page():
-    # 客製化的、在首頁顯示的 個股列表
-    stock_list_customized = []
-    # 打開stock_list_customized.csv
-    with open('stock_list_customized.csv', newline='', encoding='utf-8') as stock_csv:
-        # 把csv檔案格式轉換為list
-        table = list(csv.reader(stock_csv))
-        # print(table)
-        # print(type(table))
-        for t in table:
-            # 建立一個股物件
-            s = Stock(t[0], t[1], t[2], True)
-            # 將個股物件新增到個股清單內
-            stock_list_customized.append(s)
+    stock_dict_customized.clear()
+    get_stock_customized()
     return render_template('index.html',
-                           stock_list_customized=stock_list_customized)
+                           stock_dict_customized=stock_dict_customized)
 
 
 @app.route('/stock/<code>')
 # 個股詳情頁路由
 def stock_detail_page(code):
-    try:
-        stock = None
-        for s in stock_list_all:
-            if s.code == code:
-                stock = s
-                # print(stock)
-                break
-        # 爬取個股詳細資料
-        stock.get_data()
-        return render_template('stock_detail.html',
-                               stock=stock)
-    except AttributeError:
+    stock = None
+    for s in stock_list_all:
+        # 如果真有<code>此一股票代號
+        if s.code == code:
+            stock = s
+            # print(stock)
+
+    if stock == None:
         return render_template('stock_not_found.html', code=code)
+
+    if stock.is_tw:
+        yahoo_finance_object = yf.Ticker(code + '.TW')
+    else:
+        yahoo_finance_object = yf.Ticker(code + '.TWO')
+    # print(yahoo_finance_object)
+
+    yahoo_finance_df = yahoo_finance_object.history()
+    yahoo_finance_tables = yahoo_finance_df.to_html(
+        classes=['table-bordered', 'table-hover', 'table-sm', 'text-right'], header=True)
+    return render_template('stock_detail.html',
+                           stock=stock,
+                           yahoo_finance_tables=yahoo_finance_tables)
 
 
 @app.route('/setting')
 def setting_page():
+    # 客製化的 個股列表
+    stock_list_customized = stock_dict_customized.keys()
+    # print(stock_dict_customized)
+    # print(stock_list_customized)
+    stock_str_customized = ' '.join(stock_list_customized)
+    # print(stock_str_customized)
     return render_template('setting.html',
-                           stock_list_all=stock_list_all)
+                           stock_str_customized=stock_str_customized)
 
 
 @app.route('/setting_save', methods=['GET', 'POST'])
 def setting_save():
     if request.method == 'POST':
-        select_list = request.form.getlist('mySelect2')
-        # print(select_list)
-        # print(type(select_list))
+        # TODO: 為了不要發生 ( 譬如 因為輸入的是文字，文字無法和數字相加 )，因而發生錯誤，進而造成程式停止，使後方程式無法正常執行 ， 我們這個地方要寫try except
+        stock_code_input = request.form['stockCodeInput']
+        # print(stock_code_input)
+        # print(type(stock_code_input)) # str
+        stock_code_input_list = stock_code_input.split()
+        # print(stock_code_input_list)
+        # print(type(stock_code_input_list)) # list
 
         # 開啟輸出的 CSV 檔案
-        with open('stock_list_customized.csv', 'w', newline='') as stock_csv:
+        with open('stock_dict_customized.csv', 'w', newline='') as stock_customized_csv:
             # 建立 CSV 檔寫入器
-            writer = csv.writer(stock_csv)
+            writer = csv.writer(stock_customized_csv)
+            # 寫入一列資料
+            writer.writerow(['Code', 'Name'])
             for stock in stock_list_all:
-                if stock.code in select_list:
-                    stock.set_is_selected_true()
-                    writer.writerow([stock.code, stock.name,
-                                    stock.monthly_average_price])
-                else:
-                    stock.set_is_selected_false()
+                if stock.code in stock_code_input_list:
+                    # 寫入一列資料
+                    writer.writerow([stock.code, stock.name])
+
         return redirect(url_for('index_page'))
     else:
         return redirect(url_for('setting_page'))
