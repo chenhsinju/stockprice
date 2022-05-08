@@ -1,6 +1,3 @@
-# TODO: 因code有更改， 因此requirements也需要增刪修改 
-beautifulsoup4==4.11.1
 Flask
 gunicorn
 requests
-lxml
