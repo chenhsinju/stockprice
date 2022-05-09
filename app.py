@@ -6,7 +6,6 @@ from stock import Stock
 
 
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 # 全部的 個股列表
@@ -43,7 +42,7 @@ with open('stock_two.csv', newline='', encoding='utf-8') as stock_two_csv:
         # print(s_two)
 
 
-def get_stock_customized():
+def build_stock_dict_customized():
     # 打開stock_dict_customized.csv
     with open('stock_dict_customized.csv', newline='', encoding='utf-8') as stock_customized_csv:
         # 讀取 CSV 檔內容，將每一列轉成一個 dictionary
@@ -55,7 +54,7 @@ def get_stock_customized():
             # print(row['Code'], row['Name'])
 
 
-get_stock_customized()
+build_stock_dict_customized()
 
 
 @app.errorhandler(404)
@@ -67,14 +66,14 @@ def page_not_found(error):
 # 首頁路由
 def index_page():
     stock_dict_customized.clear()
-    get_stock_customized()
+    build_stock_dict_customized()
     return render_template('index.html',
                            stock_dict_customized=stock_dict_customized)
 
 
 @app.route('/stock/<code>')
 # 個股詳情頁路由
-def stock_detail_page(code):
+def stock_page(code):
     stock = None
     for s in stock_list_all:
         # 如果真有<code>此一股票代號
@@ -91,12 +90,13 @@ def stock_detail_page(code):
         yahoo_finance_object = yf.Ticker(code + '.TWO')
     # print(yahoo_finance_object)
 
+    # df: dataframe
     yahoo_finance_df = yahoo_finance_object.history()
-    yahoo_finance_tables = yahoo_finance_df.to_html(
+    yahoo_finance_table = yahoo_finance_df.to_html(
         classes=['table-bordered', 'table-hover', 'table-sm', 'text-right'], header=True)
-    return render_template('stock_detail.html',
+    return render_template('stock.html',
                            stock=stock,
-                           yahoo_finance_tables=yahoo_finance_tables)
+                           yahoo_finance_table=yahoo_finance_table)
 
 
 @app.route('/setting')
@@ -114,13 +114,12 @@ def setting_page():
 @app.route('/setting_save', methods=['GET', 'POST'])
 def setting_save():
     if request.method == 'POST':
-        # TODO: 為了不要發生 ( 譬如 因為輸入的是文字，文字無法和數字相加 )，因而發生錯誤，進而造成程式停止，使後方程式無法正常執行 ， 我們這個地方要寫try except
-        stock_code_input = request.form['stockCodeInput']
-        # print(stock_code_input)
-        # print(type(stock_code_input)) # str
-        stock_code_input_list = stock_code_input.split()
-        # print(stock_code_input_list)
-        # print(type(stock_code_input_list)) # list
+        stock_customized_input = request.form['stockCustomizedInput']
+        # print(stock_customized_input)
+        # print(type(stock_customized_input)) # str
+        stock_customized_input_list = stock_customized_input.split()
+        # print(stock_customized_input_list)
+        # print(type(stock_customized_input_list)) # list
 
         # 開啟輸出的 CSV 檔案
         with open('stock_dict_customized.csv', 'w', newline='') as stock_customized_csv:
@@ -129,7 +128,7 @@ def setting_save():
             # 寫入一列資料
             writer.writerow(['Code', 'Name'])
             for stock in stock_list_all:
-                if stock.code in stock_code_input_list:
+                if stock.code in stock_customized_input_list:
                     # 寫入一列資料
                     writer.writerow([stock.code, stock.name])
 

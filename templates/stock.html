@@ -1,15 +1,11 @@
 {% extends "shared/base.html" %}
-{% block link %}{% endblock %}
 
 {% block body %}
 <section>
     <div class="container">
         <h1>{{ stock.name }} ({{ stock.code }})</h1>
-        {{ yahoo_finance_tables|safe }}
+        {{ yahoo_finance_table|safe }}
         <a href="/" class="btn btn-primary">回到首頁</a>
     </div>
 </section>
 {% endblock %}
-
-{% block script1 %}{% endblock %}
-{% block script2 %}{% endblock %}

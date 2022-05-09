@@ -1,5 +1,4 @@
 {% extends "shared/base.html" %}
-{% block link %}{% endblock %}
 
 {% block body %}
 <section>
@@ -8,30 +7,19 @@
 
         <form action="/setting_save" method="post">
             <div class="form-group">
-                <label for="stockCodeInput">輸入股票代號：</label>
-                <input type="text" class="form-control" id="stockCodeInput" name="stockCodeInput"
+                <label for="stockCustomizedInput">輸入股票代號：</label>
+                <input type="text" class="form-control" id="stockCustomizedInput" name="stockCustomizedInput"
                     placeholder="ex: 0050 0051 0052" value="{{ stock_str_customized }}" required>
+                <small class="form-text text-muted"><span class="badge badge-info">Info</span>
+                    如有多檔股票，代號間請使用「空格」作為區隔，請「勿」使用其他符號，以利程式自動判讀，感謝！</small>
+                <small class="form-text text-muted"><span class="badge badge-info">Info</span>
+                    敬請輸入「正確的」代號；若輸入錯誤代號，系統將自動忽略不計。</small>
             </div>
             <button type="submit" class="btn btn-primary">儲存</button>
         </form>
-
-        <p><span class="badge badge-info">Info</span>如有多檔股票，代號間請使用「空格」作為區隔，請「勿」使用其他符號，以利程式自動判讀，感謝！</p>
-        <p><span class="badge badge-info">Info</span>敬請輸入「正確的」代號；若輸入錯誤代號，系統將自動忽略不計。</p>
+        <br>
 
         <a href="/" class="btn btn-primary">回到首頁</a>
     </div>
 </section>
-{% endblock %}
-
-{% block script1 %}{% endblock %}
-{% block script2 %}
-<script>
-    const stockCodeInput = document.getElementById("stockCodeInput");
-
-    stockCodeInput.addEventListener("input", function () {
-        const stockCode = stockCodeInput.value;
-        const stockCodeArray = stockCode.split(" ");
-        console.log(stockCodeArray);
-    });
-</script>
 {% endblock %}
